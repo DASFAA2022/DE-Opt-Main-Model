@@ -14,12 +14,22 @@ pandas
 This code contains Movilens 1M dataset for the example running`
 filename: ratings.dat
 format: user_ID::item_ID::ratings::time_stamp
+Name	|U|	|I|	|YK|	Density*
+Film Trust	1508	2071	37,919	1.21%
+MovieLens 1M	6040	3706	1,000,209	4.47%
+Each Movie	72916	1628	2,811,983	2.36%
+
 ## Baseline Model
 ### rating prediction model
 **AutoRec**  Cite: Sedhain, S., Menon, A.K., Sanner, S., Xie, L.: Autorec: Autoencoders meet collabora-tive filtering. In: WWW, pp. 111–112 (2015)
+
 **NRT**  Cite: Li, P., Wang, Z., Ren, Z., Bing, L., Lam, W.: Neural rating regression with abstractive tips generation for recommendation. In: SIGIR, pp. 345–354 (2017)
+
 **MetaMF**  Cite: Lin, Y., Ren, P., Chen, Z., Ren, Z., Yu, D., Ma, J., Rijke, M.d., Cheng, X.: Meta ma-trix factorization for federated rating predictions. In: SIGIR,pp. 981–990 (2020)
 ### item ranking model
 **NeuMF**  Cite: He, X., Liao, L., Zhang, H., Nie, L., Hu, X., Chua, T.S.: Neural collaborative filtering. In: WWW. pp. 173–182 (2017)
+
 **LRML**  Cite: Tay, Y., Anh Tuan, L., Hui, S.C.: Latent relational metric learning via memory-based attention for collaborative ranking. In: WWW, pp. 729–739 (2018)
+
 **NGCF**  Cite: Wang, X., He, X., Wang, M., Feng, F., Chua, T.S.: Neural graph collaborative filtering. In: SIGIR, pp. 165–174 (2019)
+## 
