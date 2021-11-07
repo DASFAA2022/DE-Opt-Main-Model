@@ -19,7 +19,8 @@ This code contains Movilens 1M dataset for the example running`
 filename: ratings.dat
 format: user_ID::item_ID::ratings::time_stamp
 Property: |U| 6040 |I| 3706	|YK| 1,000,209	Density 4.47%
-
+Density denotes the percentage of known ratings or interactions in the dataset.
+dataset is randomly split into three folds, i.e., training/validation/testing sets that contain 70%/10%/20% observed entries, respectively.
 ## Baseline Model
 ### rating prediction model
 **AutoRec**  Cite: Sedhain, S., Menon, A.K., Sanner, S., Xie, L.: Autorec: Autoencoders meet collabora-tive filtering. In: WWW, pp. 111–112 (2015)
