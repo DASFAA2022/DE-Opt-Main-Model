@@ -8,11 +8,18 @@ This paper proposes a general hyperparameter optimization framework for existing
 
 The Code has been tested running under Python 3.7.0
 requires:
+
 tensorflow
+
 numpy
+
 scipy
+
 sklearn
+
 pandas
+
+torch
 ## Dataset
 
 This code contains Movilens 1M dataset for the example running`
