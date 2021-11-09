@@ -55,7 +55,6 @@ Cite: Tay, Y., Anh Tuan, L., Hui, S.C.: Latent relational metric learning via me
 
 Cite: Wang, X., He, X., Wang, M., Feng, F., Chua, T.S.: Neural graph collaborative filtering. In: SIGIR, pp. 165–174 (2019)
 ### Adaptive Hyperparameters models && DE-Opt model
-11, 8, 17, 12, 13
 **SGDA**
 
 Cite: Rendle, S.: Learning recommender systems with adaptive regularization. In: WSDM, pp. 133–142 (2012)
