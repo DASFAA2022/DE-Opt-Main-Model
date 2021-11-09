@@ -43,9 +43,21 @@ Cite: Li, P., Wang, Z., Ren, Z., Bing, L., Lam, W.: Neural rating regression wit
 
 Cite: Lin, Y., Ren, P., Chen, Z., Ren, Z., Yu, D., Ma, J., Rijke, M.d., Cheng, X.: Meta ma-trix factorization for federated rating predictions. In: SIGIR,pp. 981–990 (2020)
 ### item ranking model
-**NeuMF**  Cite: He, X., Liao, L., Zhang, H., Nie, L., Hu, X., Chua, T.S.: Neural collaborative filtering. In: WWW. pp. 173–182 (2017)
+**NeuMF** && **NeuMF-(DE-Opt)**
 
-**LRML**  Cite: Tay, Y., Anh Tuan, L., Hui, S.C.: Latent relational metric learning via memory-based attention for collaborative ranking. In: WWW, pp. 729–739 (2018)
+Cite: He, X., Liao, L., Zhang, H., Nie, L., Hu, X., Chua, T.S.: Neural collaborative filtering. In: WWW. pp. 173–182 (2017)
 
-**NGCF**  Cite: Wang, X., He, X., Wang, M., Feng, F., Chua, T.S.: Neural graph collaborative filtering. In: SIGIR, pp. 165–174 (2019)
-## 
+**LRML** && **LRML-(DE-Opt)**  
+
+Cite: Tay, Y., Anh Tuan, L., Hui, S.C.: Latent relational metric learning via memory-based attention for collaborative ranking. In: WWW, pp. 729–739 (2018)
+
+**NGCF** && **NGCF-(DE-Opt)**
+
+Cite: Wang, X., He, X., Wang, M., Feng, F., Chua, T.S.: Neural graph collaborative filtering. In: SIGIR, pp. 165–174 (2019)
+### Adaptive Hyperparameters models && DE-Opt model
+**SGDA**
+**λOpt**
+**Adam-λOpt**
+**AMSGrad-λOpt**
+**AdaMod-λOpt**
+
