@@ -128,7 +128,7 @@ class DE_IAutoRec():
         # print('lr:%.8f' % self.learning_rate, 'reg:%.8f' % self.reg_rate)
 
         self.loss = tf.reduce_mean(tf.square(
-            tf.norm(tf.multiply((self.rating_matrix - self.layer_2), self.rating_matrix_mask)))) + self.reg_rate * (
+            tf.norm(tf.multiply((self.rating_matrix - self.layer_2), self.rating_matrix_mask)))) + self.reg_rate2 * (
                             tf.square(tf.norm(self.W)) + tf.square(tf.norm(self.V)))
 
         # variables_names = [v.name for v in tf.trainable_variables()]
