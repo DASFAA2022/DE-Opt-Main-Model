@@ -50,7 +50,7 @@ if __name__ == '__main__':
         fixed_lambda_candidate=[1e-3],#-1, -3,-5,-7,-9, 0
         latent_dim=128,
         mf_lr=0.008,
-        mf_optimizer='AdaMod',
+        mf_optimizer='AMSGrad',
         mf_amsgrad=False,
         mf_eps=1e-8,
         mf_l2_regularization=0,
