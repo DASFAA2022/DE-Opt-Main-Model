@@ -56,7 +56,7 @@ if __name__ == '__main__':
         ###########
         latent_dim=128,
         mf_lr=0.005,
-        mf_optimizer='adam',
+        mf_optimizer='AdaMod',
         mf_amsgrad=True,
         mf_eps=1e-8,
         mf_l2_regularization=0,
