@@ -129,7 +129,7 @@ class Engine(object):
     #         self._regularizer.track_metrics(valid_metrics)
 
 
-    # 差分进化算法
+
     def GenerateTrainVector(self, ID, maxID, lr_min, lr_max, reg_rate_min, reg_rate_max, lr_matrix, reg_rate_matrix):
         SFGSS = 8
         SFHC = 20
