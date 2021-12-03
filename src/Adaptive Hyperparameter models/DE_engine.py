@@ -10,10 +10,10 @@ from factorizer.factorizer import setup_factorizer
 from regularizer.regularizer import setup_regularizer
 from utils.data_loader import setup_sample_generator
 from utils.mp_cuda_evaluate import evaluate_ui_uj_df
-from factorizer.modules import MF
+
 from factorizer.modules import MF
 from utils.train import use_cuda, use_optimizer, get_grad_norm
-from torch.optim.lr_scheduler import ExponentialLR
+
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -38,7 +38,7 @@ def setup_args(parser=None):
 
     data.add_argument('--data-path', default='./data/ml-1m/ratings.dat')
     data.add_argument('--data-type', default='ml1m-mf', help='type of the dataset')
-    data.add_argument('--filtered-data-path', default='./tmp/data/ml1m-mf-processed_ui_history.dat', 
+    data.add_argument('--filtered-data-path', default='./tmp/data/ml1m-mf-processed_ui_history.dat',
                       help='path for cache the filtered data')
     data.add_argument('--reconstruct-data', default=True, help='re-filter the data')
     data.add_argument('--train-test-split', default='loo', help='train/test split method')
@@ -109,7 +109,7 @@ class Engine(object):
             self._opt['penalty_param_path'] = self._opt['penalty_param_path'].format(
                 alias=self._opt['alias'],                                                                 epoch_idx='{epoch_idx}')
         self._factorizer = setup_factorizer(opt)
-        self._factorizer_assumed = setup_factorizer(opt)
+        # self._factorizer_assumed = setup_factorizer(opt)
         self._regularizer = setup_regularizer(opt)
         self._mode = None
 
@@ -129,7 +129,7 @@ class Engine(object):
     #         self._regularizer.track_metrics(valid_metrics)
 
 
-
+    # 差分进化算法
     def GenerateTrainVector(self, ID, maxID, lr_min, lr_max, reg_rate_min, reg_rate_max, lr_matrix, reg_rate_matrix):
         SFGSS = 8
         SFHC = 20
@@ -201,19 +201,10 @@ class Engine(object):
         self.auc_res = -1
         self.total_round = -1
         self.min_round = 0
-
-        """Train a regularized matrix factorization model"""
-        assert self.mode in ['partial', 'complete']
-
+        self.min_loss = 1e10
         print('-' * 80)
-        print('[{} episode {} starts!]'.format(self.mode, episode_idx))
-
-        log_interval = self._opt.get('log_interval')
-        eval_interval = self._opt.get('eval_interval')
-        lambda_update_interval = self._opt.get('lambda_update_interval')
 
         status = dict()
-        # print('Initializing ...')
         self._regularizer.init_episode()
         self._factorizer.init_episode()
         # curr_lambda = self._regularizer.init_lambda()
@@ -221,9 +212,9 @@ class Engine(object):
         epoch_start = datetime.now()
 
         lr_min = 0
-        lr_max = 0.1
+        lr_max = 10
         reg_rate_min = 0
-        reg_rate_max = 0.01
+        reg_rate_max = 1
         individual_num = 5
         max_ndcg = 0
 
@@ -240,25 +231,26 @@ class Engine(object):
             t1 = time.time()
             Ndcg = -1
             Recall = -1
+            AUC = -1
 
-            # model = MF(self._opt)
-            # model_name = self._opt['factorizer']
-            # eval_res_path = self._opt['eval_res_path'].format(epoch_idx=epoch)
-            # ui_uj_df = self._sampler.test_ui_uj_df
-            # item_pool = self._sampler.item_pool
-            # top_k = self._opt['metric_topk']
-            # use_cuda = self._opt['use_cuda']
-            # device_ids = self._opt['device_ids_test']
-            # num_workers = self._opt['num_workers_test']
-            #
-            # test_metrics = evaluate_ui_uj_df(model=model, model_name=model_name, card_feat=None,
-            #                                  ui_uj_df=ui_uj_df, item_pool=item_pool,
-            #                                  metron_top_k=top_k, eval_res_path=eval_res_path,
-            #                                  use_cuda=use_cuda, device_ids=device_ids, num_workers=num_workers)
+            model = MF(self._opt)
+            model_name = self._opt['factorizer']
+            eval_res_path = self._opt['eval_res_path'].format(epoch_idx=epoch)
+            ui_uj_df = self._sampler.valid_ui_uj_df
+            item_pool = self._sampler.item_pool
+            top_k = self._opt['metric_topk']
+            use_cuda = self._opt['use_cuda']
+            device_ids = self._opt['device_ids_test']
+            num_workers = self._opt['num_workers_test']
 
-            ndcg_no_de = 0
-            recall_no_de = 0
-            auc_no_de = 0
+            test_metrics = evaluate_ui_uj_df(model=model, model_name=model_name, card_feat=None,
+                                             ui_uj_df=ui_uj_df, item_pool=item_pool,
+                                             metron_top_k=top_k, eval_res_path=eval_res_path,
+                                             use_cuda=use_cuda, device_ids=device_ids, num_workers=num_workers)
+
+            ndcg_no_de = test_metrics['ndcg']
+            recall_no_de = test_metrics['hr']
+            auc_no_de = test_metrics['auc']
             for ID in range(individual_num):
                 evolution = self.GenerateTrainVector(ID, individual_num, lr_min, lr_max, reg_rate_min, reg_rate_max,
                                                      lr_matrix, reg_rate_matrix)
@@ -271,21 +263,18 @@ class Engine(object):
                 self._opt['fixed_lambda_candidate'] = reg_rate
 
                 self._regularizer.set_cur_lambda(reg_rate)
-                curr_lambda = self._regularizer.init_lambda()
-                # self._factorizer.optimizer = torch.optim.SGD(MF(self._opt).parameters(), lr=lr)
+                # curr_lambda = self._regularizer.init_lambda()
+                self._factorizer.optimizer = torch.optim.SGD(MF(self._opt).parameters(), lr=lr)
                 # self._factorizer.optimizer = torch.optim.Adam(MF(self._opt).parameters(), lr=lr, betas=(0.9, 0.999))
                 # self._factorizer.scheduler = ExponentialLR(self._factorizer.optimizer, gamma=1)
 
-                self._regularizer.set_cur_lambda(reg_rate)
-                curr_lambda = self._regularizer.init_lambda()
+
                 # print(lr, reg_rate)
                 for i in range(self._sampler.num_batches_train):
                     status['done'] = False
                     status['sampler'] = self._sampler
                     status['factorizer'] = self._factorizer
 
-                    self._factorizer_assumed.copy(self._factorizer)
-                    status['factorizer'] = self._factorizer_assumed
 
                     curr_lambda = self._regularizer.get_lambda(status=status)
                     valid_mf_loss = self._regularizer.valid_mf_loss
@@ -298,18 +287,8 @@ class Engine(object):
                         reg_grad_norm = self._regularizer.get_grad_norm()
                     else:
                         reg_grad_norm = 0
-                print(train_mf_loss)
 
-                model = self._factorizer.model
-                model_name = self._opt['factorizer']
-                eval_res_path = self._opt['eval_res_path'].format(epoch_idx=epoch)
-                ui_uj_df = self._sampler.test_ui_uj_df
-                item_pool = self._sampler.item_pool
-                top_k = self._opt['metric_topk']
-                use_cuda = self._opt['use_cuda']
-                device_ids = self._opt['device_ids_test']
-                num_workers = self._opt['num_workers_test']
-
+                # validation after training
                 test_metrics = evaluate_ui_uj_df(model=model, model_name=model_name, card_feat=None,
                                                  ui_uj_df=ui_uj_df, item_pool=item_pool,
                                                  metron_top_k=top_k, eval_res_path=eval_res_path,
@@ -321,29 +300,18 @@ class Engine(object):
                 if ndcg_de >= ndcg_no_de:
                     lr_matrix[ID][0] = evolution[0][0]
                     reg_rate_matrix[ID][0] = evolution[1][0]
-                    ndcg_no_de = ndcg_de
-                    recall_no_de = recall_de
-                    auc_no_de = auc_de
+
                 if ID == individual_num-1:
                     Ndcg = ndcg_de
                     Recall = recall_de
                     AUC = auc_de
             t2 = time.time()
-            curResult = Ndcg
-            if curResult > self.max_NDCG:
-                self.max_NDCG = curResult
+            cur_Ndcg = Ndcg
+            if cur_Ndcg >= self.max_NDCG:
+                self.max_NDCG = cur_Ndcg
                 self.min_round = epoch + 1
             else:
-                model = self._factorizer.model
-                model_name = self._opt['factorizer']
-                eval_res_path = self._opt['eval_res_path'].format(epoch_idx=epoch)
                 ui_uj_df = self._sampler.test_ui_uj_df
-                item_pool = self._sampler.item_pool
-                top_k = self._opt['metric_topk']
-                use_cuda = self._opt['use_cuda']
-                device_ids = self._opt['device_ids_test']
-                num_workers = self._opt['num_workers_test']
-
                 test_metrics = evaluate_ui_uj_df(model=model, model_name=model_name, card_feat=None,
                                                  ui_uj_df=ui_uj_df, item_pool=item_pool,
                                                  metron_top_k=top_k, eval_res_path=eval_res_path,
