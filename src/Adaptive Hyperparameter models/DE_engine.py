@@ -195,12 +195,14 @@ class Engine(object):
 
 
     def train_an_episode(self, max_steps, episode_idx=''):
-        self.max_NDCG = -1
+
         self.ndcg_res = -1
         self.hr_res = -1
         self.auc_res = -1
+
         self.total_round = -1
         self.min_round = 0
+
         self.min_loss = 1e10
         print('-' * 80)
 
@@ -227,13 +229,14 @@ class Engine(object):
             lr_matrix[i][0] = xx
             reg_rate_matrix[i][0] = yy
 
+        # model = MF(self._opt)
         for epoch in range(2000):
             t1 = time.time()
             Ndcg = -1
             Recall = -1
             AUC = -1
 
-            model = MF(self._opt)
+            model = self._factorizer.model
             model_name = self._opt['factorizer']
             eval_res_path = self._opt['eval_res_path'].format(epoch_idx=epoch)
             ui_uj_df = self._sampler.valid_ui_uj_df
@@ -243,14 +246,7 @@ class Engine(object):
             device_ids = self._opt['device_ids_test']
             num_workers = self._opt['num_workers_test']
 
-            test_metrics = evaluate_ui_uj_df(model=model, model_name=model_name, card_feat=None,
-                                             ui_uj_df=ui_uj_df, item_pool=item_pool,
-                                             metron_top_k=top_k, eval_res_path=eval_res_path,
-                                             use_cuda=use_cuda, device_ids=device_ids, num_workers=num_workers)
 
-            ndcg_no_de = test_metrics['ndcg']
-            recall_no_de = test_metrics['hr']
-            auc_no_de = test_metrics['auc']
             for ID in range(individual_num):
                 evolution = self.GenerateTrainVector(ID, individual_num, lr_min, lr_max, reg_rate_min, reg_rate_max,
                                                      lr_matrix, reg_rate_matrix)
@@ -264,7 +260,7 @@ class Engine(object):
 
                 self._regularizer.set_cur_lambda(reg_rate)
                 # curr_lambda = self._regularizer.init_lambda()
-                self._factorizer.optimizer = torch.optim.SGD(MF(self._opt).parameters(), lr=lr)
+                self._factorizer.optimizer = torch.optim.SGD(model.parameters(), lr=lr)
                 # self._factorizer.optimizer = torch.optim.Adam(MF(self._opt).parameters(), lr=lr, betas=(0.9, 0.999))
                 # self._factorizer.scheduler = ExponentialLR(self._factorizer.optimizer, gamma=1)
 
@@ -289,26 +285,20 @@ class Engine(object):
                         reg_grad_norm = 0
 
                 # validation after training
-                test_metrics = evaluate_ui_uj_df(model=model, model_name=model_name, card_feat=None,
-                                                 ui_uj_df=ui_uj_df, item_pool=item_pool,
-                                                 metron_top_k=top_k, eval_res_path=eval_res_path,
-                                                 use_cuda=use_cuda, device_ids=device_ids, num_workers=num_workers)
-                ndcg_de = test_metrics['ndcg']
-                recall_de = test_metrics['hr']
-                auc_de = test_metrics['auc']
+                # test_metrics = evaluate_ui_uj_df(model=model, model_name=model_name, card_feat=None,
+                #                                  ui_uj_df=ui_uj_df, item_pool=item_pool,
+                #                                  metron_top_k=top_k, eval_res_path=eval_res_path,
+                #                                  use_cuda=use_cuda, device_ids=device_ids, num_workers=num_workers)
+                # ndcg_de = test_metrics['ndcg']
+                # recall_de = test_metrics['hr']
+                # auc_de = test_metrics['auc']
 
-                if ndcg_de >= ndcg_no_de:
+                if train_mf_loss <= self.min_loss:
                     lr_matrix[ID][0] = evolution[0][0]
                     reg_rate_matrix[ID][0] = evolution[1][0]
 
-                if ID == individual_num-1:
-                    Ndcg = ndcg_de
-                    Recall = recall_de
-                    AUC = auc_de
-            t2 = time.time()
-            cur_Ndcg = Ndcg
-            if cur_Ndcg >= self.max_NDCG:
-                self.max_NDCG = cur_Ndcg
+            if train_mf_loss <= self.min_loss:
+                self.min_loss = train_mf_loss
                 self.min_round = epoch + 1
             else:
                 ui_uj_df = self._sampler.test_ui_uj_df
@@ -319,7 +309,7 @@ class Engine(object):
                 ndcg_test = test_metrics['ndcg']
                 recall_test = test_metrics['hr']
                 auc_test = test_metrics['auc']
-                if ndcg_test > self.ndcg_res:
+                if auc_test > self.auc_res:
                     self.ndcg_res = ndcg_test
                     self.hr_res = recall_test
                     self.auc_res = auc_test
@@ -327,7 +317,8 @@ class Engine(object):
                     self.total_round = epoch
                 if (epoch - self.min_round) >= 50:
                     break
-            print('epochs:', epoch + 1, ' auc:', AUC, ' ndcg:', Ndcg, ' recall:', Recall, ' timeCost: %.2f' % (t2 - t1))
+            t2 = time.time()
+            print('epochs:', epoch + 1, ' train loss: ', train_mf_loss,' timeCost: %.2f' % (t2 - t1))
         print("Result on TestSet:", ' ndcg:', self.ndcg_res, ' recall:', self.hr_res)
 
 
