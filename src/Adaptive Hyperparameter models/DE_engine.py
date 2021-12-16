@@ -129,7 +129,7 @@ class Engine(object):
     #         self._regularizer.track_metrics(valid_metrics)
 
 
-    # 差分进化算法
+    # Differential Evolution Algorithm
     def GenerateTrainVector(self, ID, maxID, lr_min, lr_max, reg_rate_min, reg_rate_max, lr_matrix, reg_rate_matrix):
         SFGSS = 8
         SFHC = 20
@@ -178,6 +178,73 @@ class Engine(object):
         temp2 = temp1 * K
         Result[1][0] = reg_rate_matrix[ID][0] + temp2
 
+#         if strategy == 1:
+#             temp1 = lr_matrix[u2][0] - lr_matrix[u3][0]
+#             temp2 = temp1 * F
+#             temp_mutation = lr_matrix[u1][0] + temp2
+#             temp1 = temp_mutation - lr_matrix[ID][0]
+#             temp2 = temp1 * K
+#             Result[0][0] = lr_matrix[ID][0] + temp2
+
+#             temp1 = reg_rate_matrix[u2][0] - reg_rate_matrix[u3][0]
+#             temp2 = temp1 * F
+#             temp_mutation = reg_rate_matrix[u1][0] + temp2
+#             temp1 = temp_mutation - reg_rate_matrix[ID][0]
+#             temp2 = temp1 * K
+#             Result[1][0] = reg_rate_matrix[ID][0] + temp2
+#         elif strategy == 2:
+#             temp1 = lr_matrix[u2][0] - lr_matrix[u3][0]
+#             temp2 = temp1 * F
+#             temp_mutation = lr_best + temp2
+#             temp1 = temp_mutation - lr_matrix[ID][0]
+#             temp2 = temp1 * K
+#             Result[0][0] = lr_matrix[ID][0] + temp2
+
+#             temp1 = reg_rate_matrix[u2][0] - reg_rate_matrix[u3][0]
+#             temp2 = temp1 * F
+#             temp_mutation = reg_best + temp2
+#             temp1 = temp_mutation - reg_rate_matrix[ID][0]
+#             temp2 = temp1 * K
+#             Result[1][0] = reg_rate_matrix[ID][0] + temp2
+#         elif strategy == 3:
+#             temp1 = lr_matrix[u1][0] - lr_matrix[u2][0]
+#             temp_mutation = lr_matrix[ID][0] + F * (lr_best - lr_matrix[ID][0]) + F * temp1
+#             Result[0][0] = lr_matrix[ID][0] + K * (temp_mutation - lr_matrix[ID][0])
+
+#             temp1 = reg_rate_matrix[u1][0] - reg_rate_matrix[u2][0]
+#             temp_mutation = reg_rate_matrix[ID][0] + F * (reg_best - reg_rate_matrix[ID][0]) + F * temp1
+#             Result[1][0] = reg_rate_matrix[ID][0] + K * (temp_mutation - reg_rate_matrix[ID][0])
+#         elif strategy == 4:
+#             temp1 = lr_matrix[u1][0] - lr_matrix[u2][0]
+#             temp2 = lr_matrix[u3][0] - lr_matrix[u4][0]
+#             temp_mutation = lr_best + F * temp1 + F * temp2
+#             Result[0][0] = lr_matrix[ID][0] + K * (temp_mutation - lr_matrix[ID][0])
+
+#             temp1 = reg_rate_matrix[u1][0] - reg_rate_matrix[u2][0]
+#             temp2 = reg_rate_matrix[u3][0] - reg_rate_matrix[u4][0]
+#             temp_mutation = reg_best + F * temp1 + F * temp2
+#             Result[1][0] = reg_rate_matrix[ID][0] + K * (temp_mutation - reg_rate_matrix[ID][0])
+#         elif strategy == 5:
+#             temp1 = lr_matrix[u2][0] - lr_matrix[u3][0]
+#             temp2 = lr_matrix[u4][0] - lr_matrix[u5][0]
+#             temp_mutation = lr_matrix[u1][0] + F * temp1 + F * temp2
+#             Result[0][0] = lr_matrix[ID][0] + K * (temp_mutation - lr_matrix[ID][0])
+
+#             temp1 = reg_rate_matrix[u2][0] - reg_rate_matrix[u3][0]
+#             temp2 = reg_rate_matrix[u4][0] - reg_rate_matrix[u5][0]
+#             temp_mutation = reg_rate_matrix[u1][0] + F * temp1 + F * temp2
+#             Result[1][0] = reg_rate_matrix[ID][0] + K * (temp_mutation - reg_rate_matrix[ID][0])
+#         else:
+#             temp1 = lr_matrix[u1][0] - lr_matrix[u2][0]
+#             temp2 = lr_matrix[u3][0] - lr_matrix[u4][0]
+#             temp_mutation = lr_matrix[ID][0] + F * (lr_best - lr_matrix[ID][0]) + F * temp1 + F * temp2
+#             Result[0][0] = lr_matrix[ID][0] + K * (temp_mutation - lr_matrix[ID][0])
+
+#             temp1 = reg_rate_matrix[u1][0] - reg_rate_matrix[u2][0]
+#             temp2 = reg_rate_matrix[u3][0] - reg_rate_matrix[u4][0]
+#             temp_mutation = reg_rate_matrix[ID][0] + F * (reg_best - reg_rate_matrix[ID][0]) + F * temp1 + F * temp2
+#             Result[1][0] = reg_rate_matrix[ID][0] + K * (temp_mutation - reg_rate_matrix[ID][0])   
+        
         if Result[0][0] <= lr_min:
             Result[0][0] = lr_min
         if Result[0][0] >= lr_max:
